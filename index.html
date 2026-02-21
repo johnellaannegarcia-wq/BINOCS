@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>IncredeBIN RecoPoints</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Roboto&display=swap" rel="stylesheet">
+
+    <style>
+        body{
+            font-family: 'Roboto', Arial, sans-serif;
+            background: linear-gradient(to bottom, #d4f1c5, #a8e6a1);
+            text-align:center;
+            padding:20px;
+            color:#145214;
+            margin:0;
+        }
+
+        h2{
+            font-family: 'Montserrat', sans-serif;
+            color:#27ae60;
+            font-size:2.8em;
+            margin-bottom:20px;
+            text-shadow: 1px 1px 2px #145214;
+        }
+
+        .container{
+            background:white;
+            padding:20px;
+            border-radius:15px;
+            box-shadow:0 5px 20px rgba(0,0,0,0.15);
+            max-width:400px;
+            width:90%;
+            margin:auto;
+        }
+
+        input, button{
+            width:100%;
+            max-width:100%;
+            box-sizing:border-box;
+            padding:12px;
+            margin:8px 0;
+            border-radius:8px;
+            border:2px solid #27ae60;
+            font-size:1em;
+        }
+
+        button{
+            background:#27ae60;
+            color:white;
+            font-weight:bold;
+            cursor:pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover{
+            background:#2ecc71;
+        }
+
+        table{
+            width:100%;
+            margin-top:20px;
+            border-collapse:collapse;
+        }
+
+        th, td{
+            border:1px solid #27ae60;
+            padding:10px;
+        }
+
+        th{
+            background-color:#a8e6a1;
+            color:#145214;
+        }
+
+        @media screen and (max-width: 500px){
+            h2{
+                font-size:2em;
+            }
+            input, button{
+                font-size:0.95em;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<h2>IncredeBIN RecoPoints</h2>
+
+<div class="container">
+
+    <input id="name" placeholder="Enter Name">
+    <input id="points" type="number" placeholder="Enter Points">
+
+    <button onclick="addPoints()">Add Points</button>
+    <button onclick="redeemPoints()">Redeem Points</button>
+
+    <h3>Leaderboard</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Points</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
+
+</div>
+
+<script>
+let players = JSON.parse(localStorage.getItem("players")) || [];
+
+// Show leaderboard function
+function showLeaderboard(){
+    let t = document.getElementById("tableBody");
+    t.innerHTML = "";
+    players.sort((a,b)=>b.points - a.points); // sort descending
+    players.forEach(p=>{
+        let r = t.insertRow();
+        r.insertCell(0).innerText = p.name;
+        r.insertCell(1).innerText = p.points;
+    });
+}
+
+// Add points
+function addPoints(){
+    let nameInput = document.getElementById("name");
+    let pointsInput = document.getElementById("points");
+    let n = nameInput.value.trim();
+    let pts = parseInt(pointsInput.value);
+
+    if(!n || isNaN(pts)){ 
+        alert("Please fill all fields correctly!"); 
+        return;
+    }
+
+    let ex = players.find(p=>p.name.toLowerCase() === n.toLowerCase());
+    if(ex){ ex.points += pts; }
+    else{ players.push({name:n, points:pts}); }
+
+    localStorage.setItem("players", JSON.stringify(players));
+    showLeaderboard();
+
+    nameInput.value=""; pointsInput.value="";
+}
+
+// Redeem points
+function redeemPoints(){
+    let nameInput = document.getElementById("name");
+    let pointsInput = document.getElementById("points");
+    let n = nameInput.value.trim();
+    let pts = parseInt(pointsInput.value);
+
+    let ex = players.find(p=>p.name.toLowerCase() === n.toLowerCase());
+    if(!ex){ alert("Player not found!"); return; }
+    if(ex.points >= pts){ ex.points -= pts; }
+    else{ alert("Not enough points!"); return; }
+
+    localStorage.setItem("players", JSON.stringify(players));
+    showLeaderboard();
+
+    nameInput.value=""; pointsInput.value="";
+}
+
+// Initial leaderboard display
+showLeaderboard();
+</script>
+
+</body>
+</html>
